@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="style.css">
   <link rel="manifest" href="manifest.json">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Firebase SDKs for Google Login -->
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 </head>
@@ -21,6 +22,7 @@
     </header>
 
     <main style="display: flex; flex-direction: column; height: 100%; min-height: 0;">
+      <!-- Dashboard Grid with ECG Graph -->
       <div class="dashboard-grid">
         <div class="balance-card">
           <span id="lbl-balance">Balance</span>
@@ -36,6 +38,7 @@
         </div>
       </div>
 
+      <!-- Form Inputs: Category Top, Description Optional -->
       <form id="tracker-form">
         <input type="hidden" id="edit-index" value="-1">
         
@@ -65,6 +68,7 @@
         <button type="submit" id="save-btn" class="glow-btn">SAVE ENTRY</button>
       </form>
 
+      <!-- History -->
       <section class="history-section">
         <div class="history-header">
           <h3 id="lbl-history">History</h3>
@@ -74,6 +78,7 @@
       </section>
     </main>
 
+    <!-- Settings Modal -->
     <div id="settings-modal" class="modal hidden">
       <div class="modal-content">
         <div class="modal-header">
@@ -81,6 +86,7 @@
           <button id="close-settings" class="icon-btn">✖</button>
         </div>
 
+        <!-- Google Account Section -->
         <div class="setting-group auth-group">
           <label id="lbl-account-setting">Account / അക്കൗണ്ട്</label>
           <div id="user-profile" class="user-profile hidden">
@@ -94,6 +100,7 @@
           </button>
         </div>
 
+        <!-- Language Selector -->
         <div class="setting-group">
           <label id="lbl-language-setting">Language / ഭാഷ</label>
           <div class="toggle-container">
