@@ -160,6 +160,7 @@ lightModeBtn.addEventListener('click', () => {
   document.body.classList.add('light-theme');
   lightModeBtn.classList.add('active');
   darkModeBtn.classList.remove('active');
+  
 });
 
 colorBtns.forEach(btn => {
@@ -168,5 +169,8 @@ colorBtns.forEach(btn => {
     document.body.classList.add(btn.dataset.color);
   });
 });
-
 updateUI();
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js');
+}
+
