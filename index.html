@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Money Manager</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icon.png">
+</head>
+<body>
+  <div class="container">
+    <h2>💰 Money Manager</h2>
+    
+    <div class="balance-card">
+      <h3>ബാക്കി തുക (Balance)</h3>
+      <h1 id="balance">₹0.00</h1>
+    </div>
+
+    <div class="form">
+      <input type="text" id="title" placeholder="വിവരണം (ഉദാ: ചായ, സാലറി)" />
+      <input type="number" id="amount" placeholder="തുക (Amount)" />
+      <select id="type">
+        <option value="expense">ചെലവ് (Expense)</option>
+        <option value="income">വരവ് (Income)</option>
+      </select>
+      <button onclick="addTransaction()">Save</button>
+    </div>
+
+    <h3>ചരിത്രം (History)</h3>
+    <ul id="list" class="list"></ul>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
