@@ -1,34 +1,110 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ml">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Money Manager</title>
+  <title>Money Tracker</title>
   <link rel="stylesheet" href="style.css">
   <link rel="manifest" href="manifest.json">
-  <link rel="apple-touch-icon" href="icon.png">
+  <!-- Chart.js and Google Sign-In Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
-<body>
-  <div class="container">
-    <h2>💰 Money Manager</h2>
-    
-    <div class="balance-card">
-      <h3>ബാക്കി തുക (Balance)</h3>
-      <h1 id="balance">₹0.00</h1>
-    </div>
+<body class="dark-theme theme-neon-green">
+  <div class="app-container">
+    <header>
+      <div class="logo-container">
+        <span class="rupee-glow">₹</span>
+        <h1>MONEY TRACKER</h1>
+      </div>
+      <button id="settings-btn" class="icon-btn">⚙</button>
+    </header>
 
-    <div class="form">
-      <input type="text" id="title" placeholder="വിവരണം (ഉദാ: ചായ, സാലറി)" />
-      <input type="number" id="amount" placeholder="തുക (Amount)" />
-      <select id="type">
-        <option value="expense">ചെലവ് (Expense)</option>
-        <option value="income">വരവ് (Income)</option>
-      </select>
-      <button onclick="addTransaction()">Save</button>
-    </div>
+    <main>
+      <div class="balance-card">
+        <span>ബാക്കി തുക (Balance)</span>
+        <h2 id="balance-amount">₹0.00</h2>
+        <div class="summary-box">
+          <div>വരുമാനം: <span id="total-income">₹0.00</span></div>
+          <div>ചെലവ്: <span id="total-expense">₹0.00</span></div>
+        </div>
+      </div>
 
-    <h3>ചരിത്രം (History)</h3>
-    <ul id="list" class="list"></ul>
+      <!-- Chart Section -->
+      <div class="chart-container">
+        <canvas id="expenseChart"></canvas>
+      </div>
+
+      <form id="tracker-form">
+        <input type="hidden" id="edit-index" value="-1">
+        <input type="text" id="desc" placeholder="വിവരണം (ഉദാ: ചായ, സാമ്പളം)" required>
+        <input type="number" id="amount" placeholder="തുക (Amount)" step="any" required>
+        
+        <select id="category" required>
+          <option value="" disabled selected>കാറ്റഗറി തിരഞ്ഞെടുക്കുക</option>
+          <option value="Food">Food</option>
+          <option value="Cigarette">Cigarette</option>
+          <option value="Travel">Travel</option>
+          <option value="Salary">Salary</option>
+          <option value="Bills">Bills</option>
+          <option value="Shopping">Shopping</option>
+          <option value="Others">Others</option>
+        </select>
+
+        <select id="type">
+          <option value="expense">ചെലവ് (Expense)</option>
+          <option value="income">വരുമാനം (Income)</option>
+        </select>
+        
+        <button type="submit" id="save-btn" class="glow-btn">Save Entry</button>
+      </form>
+
+      <section class="history-section">
+        <div class="history-header">
+          <h3>ചരിത്രം (History)</h3>
+          <button id="export-btn" class="export-btn">Export CSV</button>
+        </div>
+        <ul id="history-list"></ul>
+      </section>
+    </main>
+
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="modal hidden">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Settings</h2>
+          <button id="close-settings" class="icon-btn">✖</button>
+        </div>
+        
+        <div class="setting-group">
+          <label>Account</label>
+          <div id="g_id_onload"
+               data-client_id="YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com"
+               data-callback="handleCredentialResponse">
+          </div>
+          <div class="g_id_signin" data-type="standard"></div>
+          <p id="user-info" class="user-info-text"></p>
+        </div>
+
+        <div class="setting-group">
+          <label>Mode</label>
+          <div class="toggle-container">
+            <button id="dark-mode-btn" class="mode-btn active">Dark Mode</button>
+            <button id="light-mode-btn" class="mode-btn">Light Mode</button>
+          </div>
+        </div>
+
+        <div class="setting-group">
+          <label>Neon Accent Color</label>
+          <div class="color-options">
+            <button class="color-btn green" data-color="theme-neon-green"></button>
+            <button class="color-btn cyan" data-color="theme-neon-cyan"></button>
+            <button class="color-btn pink" data-color="theme-neon-pink"></button>
+            <button class="color-btn yellow" data-color="theme-neon-yellow"></button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <script src="script.js"></script>
