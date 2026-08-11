@@ -34,7 +34,7 @@ body {
 .app-container {
   width: 100%;
   max-width: 400px;
-  max-height: 96vh;
+  height: 94vh;
   background: var(--card-bg);
   border-radius: 20px;
   padding: 16px;
@@ -43,6 +43,7 @@ body {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  position: relative;
 }
 
 header {
@@ -63,7 +64,7 @@ header h1 { font-size: 1.1rem; letter-spacing: 1px; font-weight: 800; color: var
 /* Dashboard Grid */
 .dashboard-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1.1fr 0.9fr;
   gap: 10px;
   margin-bottom: 12px;
   align-items: center;
@@ -79,11 +80,11 @@ header h1 { font-size: 1.1rem; letter-spacing: 1px; font-weight: 800; color: var
 }
 
 .balance-card span { font-size: 0.75rem; opacity: 0.8; }
-.balance-card h2 { font-size: 1.3rem; color: var(--accent-color); margin: 4px 0; }
+.balance-card h2 { font-size: 1.25rem; color: var(--accent-color); margin: 4px 0; }
 .summary-box { display: flex; flex-direction: column; gap: 2px; font-size: 0.7rem; }
 
 .chart-container {
-  height: 100px;
+  height: 95px;
   width: 100%;
   display: flex;
   justify-content: center;
@@ -93,7 +94,7 @@ header h1 { font-size: 1.1rem; letter-spacing: 1px; font-weight: 800; color: var
   padding: 4px;
 }
 
-/* Form Inputs Compact */
+/* Compact Inputs */
 form { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
 
 .input-row { display: flex; gap: 8px; }
