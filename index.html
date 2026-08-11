@@ -1,14 +1,12 @@
 <!DOCTYPE html>
-<html lang="ml">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Money Tracker</title>
   <link rel="stylesheet" href="style.css">
   <link rel="manifest" href="manifest.json">
-  <!-- Chart.js and Google Sign-In Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body class="dark-theme theme-neon-green">
   <div class="app-container">
@@ -20,74 +18,77 @@
       <button id="settings-btn" class="icon-btn">⚙</button>
     </header>
 
-    <main>
-      <div class="balance-card">
-        <span>ബാക്കി തുക (Balance)</span>
-        <h2 id="balance-amount">₹0.00</h2>
-        <div class="summary-box">
-          <div>വരുമാനം: <span id="total-income">₹0.00</span></div>
-          <div>ചെലവ്: <span id="total-expense">₹0.00</span></div>
+    <main style="display: flex; flex-direction: column; height: 100%; min-height: 0;">
+      <div class="dashboard-grid">
+        <div class="balance-card">
+          <span id="lbl-balance">Balance</span>
+          <h2 id="balance-amount">₹0.00</h2>
+          <div class="summary-box">
+            <div><span id="lbl-income">Income</span>: <span id="total-income" style="color:#00ff87;">₹0.00</span></div>
+            <div><span id="lbl-expense">Expense</span>: <span id="total-expense" style="color:#ff4757;">₹0.00</span></div>
+          </div>
         </div>
-      </div>
 
-      <!-- Chart Section -->
-      <div class="chart-container">
-        <canvas id="expenseChart"></canvas>
+        <div class="chart-container">
+          <canvas id="expenseChart"></canvas>
+        </div>
       </div>
 
       <form id="tracker-form">
         <input type="hidden" id="edit-index" value="-1">
-        <input type="text" id="desc" placeholder="വിവരണം (ഉദാ: ചായ, സാമ്പളം)" required>
-        <input type="number" id="amount" placeholder="തുക (Amount)" step="any" required>
         
-        <select id="category" required>
-          <option value="" disabled selected>കാറ്റഗറി തിരഞ്ഞെടുക്കുക</option>
-          <option value="Food">Food</option>
-          <option value="Cigarette">Cigarette</option>
-          <option value="Travel">Travel</option>
-          <option value="Salary">Salary</option>
-          <option value="Bills">Bills</option>
-          <option value="Shopping">Shopping</option>
-          <option value="Others">Others</option>
-        </select>
+        <div class="input-row">
+          <select id="category" required>
+            <option value="" disabled selected id="opt-select-cat">Select Category</option>
+            <option value="Food">Food</option>
+            <option value="Cigarette">Cigarette</option>
+            <option value="Travel">Travel</option>
+            <option value="Salary">Salary</option>
+            <option value="Bills">Bills</option>
+            <option value="Shopping">Shopping</option>
+            <option value="Others">Others</option>
+          </select>
 
-        <select id="type">
-          <option value="expense">ചെലവ് (Expense)</option>
-          <option value="income">വരുമാനം (Income)</option>
-        </select>
+          <select id="type">
+            <option value="expense" id="opt-expense">Expense</option>
+            <option value="income" id="opt-income">Income</option>
+          </select>
+        </div>
+
+        <div class="input-row">
+          <input type="text" id="desc" placeholder="Description (e.g. Tea)" required>
+          <input type="number" id="amount" placeholder="Amount" step="any" required>
+        </div>
         
-        <button type="submit" id="save-btn" class="glow-btn">Save Entry</button>
+        <button type="submit" id="save-btn" class="glow-btn">SAVE ENTRY</button>
       </form>
 
       <section class="history-section">
         <div class="history-header">
-          <h3>ചരിത്രം (History)</h3>
+          <h3 id="lbl-history">History</h3>
           <button id="export-btn" class="export-btn">Export CSV</button>
         </div>
         <ul id="history-list"></ul>
       </section>
     </main>
 
-    <!-- Settings Modal -->
     <div id="settings-modal" class="modal hidden">
       <div class="modal-content">
         <div class="modal-header">
           <h2>Settings</h2>
           <button id="close-settings" class="icon-btn">✖</button>
         </div>
-        
+
         <div class="setting-group">
-          <label>Account</label>
-          <div id="g_id_onload"
-               data-client_id="YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com"
-               data-callback="handleCredentialResponse">
+          <label id="lbl-language-setting">Language / ഭാഷ</label>
+          <div class="toggle-container">
+            <button id="lang-en-btn" class="mode-btn active">English</button>
+            <button id="lang-ml-btn" class="mode-btn">മലയാളം</button>
           </div>
-          <div class="g_id_signin" data-type="standard"></div>
-          <p id="user-info" class="user-info-text"></p>
         </div>
 
         <div class="setting-group">
-          <label>Mode</label>
+          <label id="lbl-mode-setting">Mode</label>
           <div class="toggle-container">
             <button id="dark-mode-btn" class="mode-btn active">Dark Mode</button>
             <button id="light-mode-btn" class="mode-btn">Light Mode</button>
@@ -95,7 +96,7 @@
         </div>
 
         <div class="setting-group">
-          <label>Neon Accent Color</label>
+          <label id="lbl-accent-setting">Neon Accent Color</label>
           <div class="color-options">
             <button class="color-btn green" data-color="theme-neon-green"></button>
             <button class="color-btn cyan" data-color="theme-neon-cyan"></button>
