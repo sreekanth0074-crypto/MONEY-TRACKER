@@ -1,5 +1,5 @@
 let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
-let currentLang = localStorage.getItem('appLang') || 'en';
+let currentLang = localStorage.getItem('appLang') || 'ml';
 let myChart = null;
 
 const balanceEl = document.getElementById('balance-amount');
@@ -25,7 +25,6 @@ const colorBtns = document.querySelectorAll('.color-btn');
 const langEnBtn = document.getElementById('lang-en-btn');
 const langMlBtn = document.getElementById('lang-ml-btn');
 
-// Translation Dictionary
 const i18n = {
   en: {
     balance: 'Balance',
@@ -44,7 +43,7 @@ const i18n = {
     accentSetting: 'Neon Accent Color'
   },
   ml: {
-    balance: 'ബാക്കി തുക',
+    balance: 'ബാക്കി തുക (Balance)',
     income: 'വരുമാനം',
     expense: 'ചെലവ്',
     selectCat: 'കാറ്റഗറി തിരഞ്ഞെടുക്കുക',
@@ -52,11 +51,11 @@ const i18n = {
     amountPlaceholder: 'തുക (Amount)',
     saveBtn: 'സേവ് ചെയ്യുക',
     updateBtn: 'അപ്ഡേറ്റ് ചെയ്യുക',
-    history: 'ചരിത്രം',
+    history: 'ചരിത്രം (History)',
     expenseOpt: 'ചെലവ് (Expense)',
     incomeOpt: 'വരുമാനം (Income)',
     langSetting: 'ഭാഷ (Language)',
-    modeSetting: 'മോഡ്',
+    modeSetting: 'മോഡ് (Theme)',
     accentSetting: 'നിയോൺ കളർ'
   }
 };
@@ -96,29 +95,29 @@ function applyLanguage(lang) {
   }
 }
 
-// Line Graph Implementation
 function initChart() {
   const ctx = document.getElementById('expenseChart').getContext('2d');
   if (myChart) myChart.destroy();
 
-  // Extract last 6 entries for graph trend
   const recentData = transactions.slice(-6);
-  const labels = recentData.map((_, i) => `#${i + 1}`);
-  const dataPoints = recentData.map(t => parseFloat(t.amount) * (t.type === 'expense' ? -1 : 1));
+  const labels = recentData.length ? recentData.map((_, i) => `#${i + 1}`) : ['1', '2', '3'];
+  const dataPoints = recentData.length 
+    ? recentData.map(t => parseFloat(t.amount) * (t.type === 'expense' ? -1 : 1)) 
+    : [0, 0, 0];
 
   myChart = new Chart(ctx, {
     type: 'line',
     data: {
-      labels: labels.length ? labels : ['1', '2', '3'],
+      labels: labels,
       datasets: [{
         label: 'Flow',
-        data: dataPoints.length ? dataPoints : [0, 0, 0],
+        data: dataPoints,
         borderColor: '#00ff87',
-        backgroundColor: 'rgba(0, 255, 135, 0.1)',
+        backgroundColor: 'rgba(0, 255, 135, 0.15)',
         borderWidth: 2,
         tension: 0.3,
         fill: true,
-        pointRadius: 3
+        pointRadius: 2
       }]
     },
     options: {
@@ -225,7 +224,6 @@ exportBtn.addEventListener('click', () => {
   a.click();
 });
 
-// Settings Events
 settingsBtn.addEventListener('click', () => settingsModal.classList.remove('hidden'));
 closeSettingsBtn.addEventListener('click', () => settingsModal.classList.add('hidden'));
 
@@ -250,10 +248,6 @@ colorBtns.forEach(btn => {
     document.body.classList.add(btn.dataset.color);
   });
 });
-
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('./sw.js');
-}
 
 applyLanguage(currentLang);
 updateUI();
