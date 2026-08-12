@@ -1,8 +1,9 @@
 let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
 let currentLang = localStorage.getItem('appLang') || 'ml';
+let currentTheme = localStorage.getItem('appAccent') || 'theme-neon-green';
+let currentMode = localStorage.getItem('appMode') || 'dark';
 let myChart = null;
 
-// Google Sign-In Client ID (Google Cloud Console-il ninnu kittunnat)
 const GOOGLE_CLIENT_ID = "YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com";
 
 const balanceEl = document.getElementById('balance-amount');
@@ -107,111 +108,72 @@ function applyLanguage(lang) {
   }
 }
 
-// REAL Google Sign-In Handler (JWT Parse)
-function parseJwt(token) {
-  try {
-    var base64Url = token.split('.')[1];
-    var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    var jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
-        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-    }).join(''));
-    return JSON.parse(jsonPayload);
-  } catch (e) {
-    return null;
-  }
+function applyAccentColor(theme) {
+  currentTheme = theme;
+  localStorage.setItem('appAccent', theme);
+  document.body.className = `${currentMode === 'light' ? 'light-theme' : 'dark-theme'} ${theme}`;
+  initChart();
 }
 
-function handleCredentialResponse(response) {
-  const user = parseJwt(response.credential);
-  if (user) {
-    localStorage.setItem('googleUser', JSON.stringify(user));
-    showUserProfile(user);
-  }
-}
-
-function showUserProfile(user) {
-  googleLoginBtn.classList.add('hidden');
-  userProfileDiv.classList.remove('hidden');
-  userPhoto.src = user.picture || 'https://via.placeholder.com/32';
-  userName.innerText = user.name || user.email;
-}
-
-googleLogoutBtn.addEventListener('click', () => {
-  localStorage.removeItem('googleUser');
-  googleLoginBtn.classList.remove('hidden');
-  userProfileDiv.classList.add('hidden');
-});
-
-// Load saved user session
-window.onload = function() {
-  const savedUser = JSON.parse(localStorage.getItem('googleUser'));
-  if (savedUser) {
-    showUserProfile(savedUser);
-  }
-  
-  if (window.google) {
-    google.accounts.id.initialize({
-      client_id: GOOGLE_CLIENT_ID,
-      callback: handleCredentialResponse
-    });
-  }
-};
-
-googleLoginBtn.addEventListener('click', () => {
-  if (window.google) {
-    google.accounts.id.prompt();
+function applyThemeMode(mode) {
+  currentMode = mode;
+  localStorage.setItem('appMode', mode);
+  document.body.className = `${mode === 'light' ? 'light-theme' : 'dark-theme'} ${currentTheme}`;
+  if (mode === 'light') {
+    lightModeBtn.classList.add('active');
+    darkModeBtn.classList.remove('active');
   } else {
-    alert("Google Identity Services script load aayittilla. Client ID verify cheyyanam.");
+    darkModeBtn.classList.add('active');
+    lightModeBtn.classList.remove('active');
   }
-});
+}
 
-// ECG Heartbeat Wave Style Graph
+// Trading Style Dynamic Graph (Pacha for Income UP, Chuvappu for Expense DOWN)
 function initChart() {
   const ctx = document.getElementById('expenseChart').getContext('2d');
   if (myChart) myChart.destroy();
 
-  const recentData = transactions.slice(-6);
-  
-  let ecgLabels = [];
-  let ecgData = [];
-  
-  let baseVal = 0;
-  if (recentData.length === 0) {
-    ecgLabels = ['1', '2', '3', '4', '5', '6'];
-    ecgData = [0, 5, -5, 10, -2, 0];
-  } else {
-    recentData.forEach((t, i) => {
-      const amt = parseFloat(t.amount) || 0;
-      const stepVal = t.type === 'income' ? amt : -amt;
-      
-      ecgLabels.push(`P${i+1}-a`, `P${i+1}-b`, `P${i+1}-c`);
-      ecgData.push(baseVal, baseVal + (stepVal * 0.4), baseVal + stepVal);
-      baseVal += stepVal;
-    });
+  let chartPoints = [0];
+  let labels = ['Start'];
+  let currentRunningBal = 0;
+
+  transactions.forEach((t, i) => {
+    const amt = parseFloat(t.amount) || 0;
+    if (t.type === 'income') {
+      currentRunningBal += amt;
+    } else {
+      currentRunningBal -= amt;
+    }
+    chartPoints.push(currentRunningBal);
+    labels.push(`T${i + 1}`);
+  });
+
+  if (chartPoints.length === 1) {
+    chartPoints = [0, 100, 50, 200];
+    labels = ['1', '2', '3', '4'];
   }
 
-  // Dynamic Trend Color: Income UP = GREEN, Expense DOWN = RED
-  const firstVal = ecgData[0] || 0;
-  const lastVal = ecgData[ecgData.length - 1] || 0;
-  const isUpTrend = lastVal >= firstVal;
+  const firstVal = chartPoints[0];
+  const lastVal = chartPoints[chartPoints.length - 1];
+  const isProfit = lastVal >= firstVal;
 
-  const lineColor = isUpTrend ? '#00ff87' : '#ff4757';
-  const bgGlow = isUpTrend ? 'rgba(0, 255, 135, 0.12)' : 'rgba(255, 71, 87, 0.12)';
+  const lineColor = isProfit ? '#00ff87' : '#ff4757';
+  const bgGlow = isProfit ? 'rgba(0, 255, 135, 0.15)' : 'rgba(255, 71, 87, 0.15)';
 
   myChart = new Chart(ctx, {
     type: 'line',
     data: {
-      labels: ecgLabels,
+      labels: labels,
       datasets: [{
-        label: 'Pulse',
-        data: ecgData,
+        label: 'Trend',
+        data: chartPoints,
         borderColor: lineColor,
         backgroundColor: bgGlow,
         borderWidth: 2,
-        tension: 0,
+        tension: 0.3,
         fill: true,
-        pointRadius: 1,
-        pointHoverRadius: 4,
+        pointRadius: 2,
+        pointHoverRadius: 5,
         pointBackgroundColor: lineColor
       }]
     },
@@ -322,30 +284,78 @@ exportBtn.addEventListener('click', () => {
   a.click();
 });
 
+// Google Auth Handlers
+function parseJwt(token) {
+  try {
+    var base64Url = token.split('.')[1];
+    var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    var jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+    return JSON.parse(jsonPayload);
+  } catch (e) {
+    return null;
+  }
+}
+
+function handleCredentialResponse(response) {
+  const user = parseJwt(response.credential);
+  if (user) {
+    localStorage.setItem('googleUser', JSON.stringify(user));
+    showUserProfile(user);
+  }
+}
+
+function showUserProfile(user) {
+  googleLoginBtn.classList.add('hidden');
+  userProfileDiv.classList.remove('hidden');
+  userPhoto.src = user.picture || 'https://via.placeholder.com/32';
+  userName.innerText = user.name || user.email;
+}
+
+googleLogoutBtn.addEventListener('click', () => {
+  localStorage.removeItem('googleUser');
+  googleLoginBtn.classList.remove('hidden');
+  userProfileDiv.classList.add('hidden');
+});
+
+// Settings & Events
 settingsBtn.addEventListener('click', () => settingsModal.classList.remove('hidden'));
 closeSettingsBtn.addEventListener('click', () => settingsModal.classList.add('hidden'));
 
 langEnBtn.addEventListener('click', () => applyLanguage('en'));
 langMlBtn.addEventListener('click', () => applyLanguage('ml'));
 
-darkModeBtn.addEventListener('click', () => {
-  document.body.classList.remove('light-theme');
-  darkModeBtn.classList.add('active');
-  lightModeBtn.classList.remove('active');
-});
-
-lightModeBtn.addEventListener('click', () => {
-  document.body.classList.add('light-theme');
-  lightModeBtn.classList.add('active');
-  darkModeBtn.classList.remove('active');
-});
+darkModeBtn.addEventListener('click', () => applyThemeMode('dark'));
+lightModeBtn.addEventListener('click', () => applyThemeMode('light'));
 
 colorBtns.forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.body.classList.remove('theme-neon-green', 'theme-neon-cyan', 'theme-neon-pink', 'theme-neon-yellow');
-    document.body.classList.add(btn.dataset.color);
-  });
+  btn.addEventListener('click', () => applyAccentColor(btn.dataset.color));
 });
 
-applyLanguage(currentLang);
-updateUI();
+googleLoginBtn.addEventListener('click', () => {
+  if (window.google) {
+    google.accounts.id.prompt();
+  } else {
+    alert("Google Sign-In ready aakan Google Cloud Console-il Client ID set cheyyanam.");
+  }
+});
+
+window.onload = function() {
+  applyThemeMode(currentMode);
+  applyAccentColor(currentTheme);
+  applyLanguage(currentLang);
+  updateUI();
+
+  const savedUser = JSON.parse(localStorage.getItem('googleUser'));
+  if (savedUser) {
+    showUserProfile(savedUser);
+  }
+
+  if (window.google) {
+    google.accounts.id.initialize({
+      client_id: GOOGLE_CLIENT_ID,
+      callback: handleCredentialResponse
+    });
+  }
+};
